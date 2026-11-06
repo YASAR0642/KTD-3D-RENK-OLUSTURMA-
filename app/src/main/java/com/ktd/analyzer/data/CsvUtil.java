@@ -24,6 +24,24 @@ public final class CsvUtil {
         try(FileOutputStream out=new FileOutputStream(f)){writeToStream(out,d);}
         return f;
     }
+    /** Thuban verisini KTD uyumlu CSV olarak, SAHTE derinlik olusturmadan kaydeder. */
+    public static File saveThubanNamed(Context c, ScanData d, String baseName) throws Exception {
+        File dir=new File(c.getFilesDir(),"scans");
+        if(!dir.exists()&&!dir.mkdirs())throw new IOException("Kayit klasoru olusturulamadi");
+        String base=safeBaseName(baseName);File f=new File(dir,base+".csv");
+        for(int i=2;f.exists()&&i<=9999;i++)f=new File(dir,base+"_"+i+".csv");
+        if(f.exists())throw new IOException("Ayni isimle cok fazla dosya var");
+        try(PrintWriter pw=new PrintWriter(new OutputStreamWriter(new FileOutputStream(f),"UTF-8"))){
+            pw.println("X,Y,Z,C");
+            for(int r=0;r<d.rows;r++)for(int col=0;col<d.cols;col++)if(d.filled[r][col]){
+                // Nokta araligi KTD gorsellestirme olcegidir; Thuban fiziksel metre bildirmiyor.
+                pw.printf(Locale.US,"%s,%s,%s,%n",n(d.x[r][col]*100f),n(d.y[r][col]*100f),n(d.raw[r][col]));
+            }
+            if(pw.checkError())throw new IOException("Thuban CSV yazilamadi");
+        }
+        return f;
+    }
+
     /** Disaridan gelen CSV'nin ORIJINAL satir ve sutunlarini aynen saklar.
      * Dosya adi yalnizca kullanici etiketi; icerik turu buna gore saptanmaz.
      * Ayni isimli dosyalar uzerine yazilmaz, 2/3/... soneki eklenir. */

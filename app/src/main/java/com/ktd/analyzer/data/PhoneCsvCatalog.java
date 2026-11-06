@@ -71,7 +71,7 @@ public final class PhoneCsvCatalog {
     private static boolean csvOrV3d(String name) {
         if(name==null)return false;
         String low=name.toLowerCase(Locale.ROOT);
-        return low.endsWith(".csv") || low.endsWith(".v3d");
+        return low.endsWith(".csv") || low.endsWith(".v3d") || low.endsWith(".thuban");
     }
 
     private static void put(Map<String,Item> result,Item item) {

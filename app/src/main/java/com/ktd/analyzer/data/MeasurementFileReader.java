@@ -37,7 +37,33 @@ public final class MeasurementFileReader {
         }
     }
 
+    public static boolean isThuban(Context c, Uri uri) throws Exception {
+        try(InputStream in=c.getContentResolver().openInputStream(uri)) {
+            if(in==null)throw new IOException("Dosya okunamadi");
+            byte[] probe=new byte[4096];int n=in.read(probe);
+            if(n<1)return false;
+            String begin=new String(probe,0,n,java.nio.charset.StandardCharsets.UTF_8).trim();
+            // Thuban thumbnailImage bazi dosyalarda yuzbinlerce bayt surer;
+            // surfacePoints ilk 4096 baytta bulunmayabilir.
+            boolean thubanName=false;
+            try (android.database.Cursor cur=c.getContentResolver().query(uri,
+                    new String[]{android.provider.OpenableColumns.DISPLAY_NAME},null,null,null)) {
+                if(cur!=null&&cur.moveToFirst()) {
+                    String fileName=cur.getString(0);
+                    thubanName=fileName!=null&&fileName.toLowerCase(java.util.Locale.ROOT).endsWith(".thuban");
+                }
+            } catch(Exception ignored) { }
+            if(!thubanName) {
+                String tail=uri.getLastPathSegment();
+                thubanName=tail!=null&&tail.toLowerCase(java.util.Locale.ROOT).endsWith(".thuban");
+            }
+            return begin.startsWith("{") && (thubanName ||
+                (begin.contains("\"version\"") && begin.contains("\"thumbnailImage\"")));
+        }
+    }
+
     public static ScanData read(Context c, Uri uri, int stepCm) throws Exception {
+        if(isThuban(c,uri))return ThubanImporter.read(c,uri);
         if (isV3d(c,uri)) {
             try (InputStream in=c.getContentResolver().openInputStream(uri)) {
                 return V3dImporter.read(in,stepCm);

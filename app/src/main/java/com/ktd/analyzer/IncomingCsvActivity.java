@@ -132,12 +132,14 @@ public final class IncomingCsvActivity extends Activity {
                         });
                         return;
                     }
-                    boolean v3d=MeasurementFileReader.isV3d(this,uri);
+                    boolean thuban=MeasurementFileReader.isThuban(this,uri);
+                    boolean v3d=!thuban && MeasurementFileReader.isV3d(this,uri);
                     ScanData d=MeasurementFileReader.read(this,uri,Prefs.stepCm(this));
                     if (d == null || d.count < 1) throw new Exception("Ölçüm verisi bulunamadı");
                     d.name=CsvUtil.safeBaseName(base(filename));
                     // Gelen CSV'nin orijinal baytlarini koru. V3D ise KTD CSV'sine cevir.
-                    if(v3d)CsvUtil.saveNamed(this,d,d.name);
+                    if(thuban)CsvUtil.saveThubanNamed(this,d,d.name);
+                    else if(v3d)CsvUtil.saveNamed(this,d,d.name);
                     else CsvUtil.copyOriginalCsv(this,uri,d.name);
                     if (first==null) first=d;
                     success++;
@@ -158,9 +160,9 @@ public final class IncomingCsvActivity extends Activity {
                     } else {
                         startActivity(new Intent(this,RecordsActivity.class));
                     }
-                    Toast.makeText(this,count+" CSV/V3D KTD kayıtlarına alındı",Toast.LENGTH_LONG).show();
+                    Toast.makeText(this,count+" dosya KTD kayıtlarına alındı",Toast.LENGTH_LONG).show();
                     finish();
-                } else fail("CSV/V3D açılamadı: "+(error==null?"Desteklenmeyen dosya":error));
+                } else fail("Dosya açılamadı: "+(error==null?"Desteklenmeyen dosya":error));
             });
         },"ktd-incoming-csv").start();
     }

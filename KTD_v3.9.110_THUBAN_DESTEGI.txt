@@ -1,0 +1,6 @@
+KTD 3D ANALYZER 3.9.110 - Thuban .thuban ice aktarma
+- Thuban JSON surfacePoints.datas noktalari koordinatlarina gore 2D izgara olarak acilir.
+- Her nokta contentValues.data_0 imzali ham bayt verisini kullanir; derinlik veya malzeme turu degildir.
+- 3D/4D dugmesi ayni nokta verisini gorsellestirir. Gercek 3D hacim veya fiziksel metre iddiasi yoktur.
+- Dosyalar ekranindan ve WhatsApp'tan Thuban dosyalari secilebilir; ic aktarma KTD CSV olarak saklanir.
+- GPR CSV icin ek bir degisiklik yapilmamistir.

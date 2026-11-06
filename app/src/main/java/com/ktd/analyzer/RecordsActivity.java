@@ -104,7 +104,7 @@ public final class RecordsActivity extends Activity {
                 "İndekste erişilebilir CSV bulunamadı. Yukarıdan KLASÖR EKLE ile İndirilenler / Documents / WhatsApp klasörü seç veya TELEFONDAN CSV AÇ kullan.",
                 13,Color.rgb(160,180,195));list.addView(info);
         }else{
-            TextView info=Ui.text(this,publicCsv.size()+" erişilebilir CSV/V3D dosyası listelendi • "+PhoneCsvCatalog.treeCount(this)+" klasör izni",11,Color.rgb(150,185,196));
+            TextView info=Ui.text(this,publicCsv.size()+" erişilebilir CSV/V3D/Thuban dosyası listelendi • "+PhoneCsvCatalog.treeCount(this)+" klasör izni",11,Color.rgb(150,185,196));
             list.addView(info);
             for(PhoneCsvCatalog.Item item:publicCsv)addPhoneCard(item);
         }
@@ -258,7 +258,7 @@ public final class RecordsActivity extends Activity {
             try{
                 getContentResolver().takePersistableUriPermission(folder,Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 PhoneCsvCatalog.addTree(this,folder);
-                Toast.makeText(this,"Klasör eklendi. CSV dosyaları listeleniyor.",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Klasör eklendi. CSV/Thuban dosyaları listeleniyor.",Toast.LENGTH_LONG).show();
                 scanPhoneFiles();
             }catch(Exception e){Toast.makeText(this,"Klasör erişim izni alınamadı: "+e.getMessage(),Toast.LENGTH_LONG).show();}
             return;
@@ -276,11 +276,13 @@ public final class RecordsActivity extends Activity {
             int ok=0;String firstFailure=null;ScanData single=null;
             for(Uri uri:selected){try{
                 String name=fileName(uri);
-                boolean v3d=MeasurementFileReader.isV3d(this,uri);
+                boolean thuban=MeasurementFileReader.isThuban(this,uri);
+                boolean v3d=!thuban && MeasurementFileReader.isV3d(this,uri);
                 ScanData d=MeasurementFileReader.read(this,uri,Prefs.stepCm(this));
                 if(d.count<1)throw new IllegalArgumentException("Ölçüm bulunamadı");
                 d.name=CsvUtil.safeBaseName(base(name));
-                if(v3d) CsvUtil.saveNamed(this,d,d.name);
+                if(thuban) CsvUtil.saveThubanNamed(this,d,d.name);
+                else if(v3d) CsvUtil.saveNamed(this,d,d.name);
                 else CsvUtil.copyOriginalCsv(this,uri,d.name);
                 if(selected.size()==1)single=d;
                 ok++;

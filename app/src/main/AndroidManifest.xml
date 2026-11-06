@@ -50,6 +50,8 @@
                 <data android:mimeType="application/x-segy"/>
                 <data android:mimeType="application/x-sgy"/>
                 <data android:mimeType="application/x-seg-y"/>
+                <data android:mimeType="application/json"/>
+                <data android:mimeType="application/x-thuban"/>
                 <data android:mimeType="text/plain"/>
             </intent-filter>
             <intent-filter android:label="KTD 3D ile paylaş">
@@ -64,6 +66,8 @@
                 <data android:mimeType="application/x-sgy"/>
                 <data android:mimeType="application/x-seg-y"/>
                 <data android:mimeType="text/plain"/>
+                <data android:mimeType="application/json"/>
+                <data android:mimeType="application/x-thuban"/>
             </intent-filter>
             <intent-filter android:label="KTD 3D CSV içe aktar">
                 <action android:name="android.intent.action.SEND_MULTIPLE"/>
