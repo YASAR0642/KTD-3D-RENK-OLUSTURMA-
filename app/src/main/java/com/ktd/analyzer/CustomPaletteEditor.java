@@ -21,12 +21,14 @@ public final class CustomPaletteEditor {
         LinearLayout body=new LinearLayout(ctx);body.setOrientation(LinearLayout.VERTICAL);body.setPadding(22,12,22,12);
         TextView nameTitle=new TextView(ctx);nameTitle.setText("PALET ADI");nameTitle.setTextColor(Color.WHITE);nameTitle.setTextSize(16);body.addView(nameTitle);
         EditText name=new EditText(ctx);name.setSingleLine(true);name.setHint("Palet ismi (örn. KTD Özel 1)");name.setTextColor(Color.WHITE);name.setHintTextColor(Color.LTGRAY);body.addView(name);
-        TextView info=new TextView(ctx);info.setText("Negatif uçtan pozitif uca 10 rengi seç. Her renk butonuna dokunarak RGB ayarı yap.");info.setTextColor(Color.WHITE);info.setTextSize(14);body.addView(info);
+        TextView info=new TextView(ctx);info.setText("10 kategori için görünüm renklerini seç. Bunlar ölçülen sinyal düzeylerine karşılık gelen palet etiketleridir; cihazın metalleri veya boşlukları kesin tanıdığı anlamına gelmez.");info.setTextColor(Color.WHITE);info.setTextSize(14);body.addView(info);
         LinearLayout bar=new LinearLayout(ctx);bar.setOrientation(LinearLayout.HORIZONTAL);bar.setMinimumHeight(dp(ctx,34));body.addView(bar);
         LinearLayout list=new LinearLayout(ctx);list.setOrientation(LinearLayout.VERTICAL);body.addView(list);
-        final String[] labels={"1 · Negatif uç", "2 · Negatif koyu", "3 · Negatif orta",
-            "4 · Negatif geçiş", "5 · Zemin (-)", "6 · Zemin (+)",
-            "7 · Pozitif geçiş", "8 · Pozitif orta", "9 · Pozitif güçlü", "10 · Pozitif uç"};
+        // Siralama, 10 durakli sinyal paletinin soldan saga renk sirasidir.
+        // Bunlar yalnizca kullanici etiketleridir; otomatik malzeme teshisi yapilmaz.
+        final String[] labels={"1 · Metal", "2 · Değerli metal", "3 · Değersiz metal",
+            "4 · Boşluk", "5 · Mineral", "6 · Yapı", "7 · Doğal zemin",
+            "8 · Sert zemin", "9 · Küp", "10 · Toprak"};
         final Button[] buttons=new Button[10];
         Runnable update=()->{
             bar.removeAllViews();
@@ -42,8 +44,8 @@ public final class CustomPaletteEditor {
         body.addView(existing);
         Runnable refresh=()->{ArrayList<CustomPaletteStore.Item> entries=CustomPaletteStore.load(ctx);StringBuilder sb=new StringBuilder("Kayıtlı paletler ("+entries.size()+"/"+CustomPaletteStore.MAX+"):");for(CustomPaletteStore.Item item:entries)sb.append("\n• ").append(item.name);existing.setText(sb.toString());};refresh.run();
         ScrollView scroll=new ScrollView(ctx);scroll.addView(body);
-        AlertDialog dlg=new AlertDialog.Builder(ctx).setTitle("RENK OLUŞTUR").setView(scroll)
-            .setPositiveButton("KAYDET",null).setNeutralButton("Kayıtlıları Yönet",null).setNegativeButton("İPTAL",null).create();
+        AlertDialog dlg=new AlertDialog.Builder(ctx).setTitle("10 KATEGORİ RENK OLUŞTUR").setView(scroll)
+            .setPositiveButton("KAYDET",null).setNeutralButton("SİL",null).setNegativeButton("KAPAT",null).create();
         dlg.setOnShowListener(d->{
             dlg.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{
                 String n=name.getText().toString().trim();

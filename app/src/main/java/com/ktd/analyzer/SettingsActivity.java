@@ -33,7 +33,7 @@ public final class SettingsActivity extends Activity {
         root.addView(smartSettings,new LinearLayout.LayoutParams(-1,Ui.dp(this,48)));
         ScrollView sv=new ScrollView(this);LinearLayout body=new LinearLayout(this);body.setOrientation(LinearLayout.VERTICAL);
         String[] n={"GÖRÜNÜM","AKILLI ANOMALİ RENKLERİ","RENK OLUŞTUR","IZGARA","SESLİ YÖNLENDİRME","PROFESYONEL KULLANIM KILAVUZU"};
-        String[] d={"3D/4D • saydam doğal zemin • keskin anomaliler","Hassasiyet • mavi/mineral/kırmızı eşikleri • renk sertliği","İsim ver • 10 renk seç • kaydet • 2D/3D/4D/GMR","X/Y hücre • adım • başlangıç yönü","Türkçe sıra ve hücre uyarıları","Cihaz hazırlığı, tarama, verileri okuma ve raporlama"};
+        String[] d={"3D/4D • saydam doğal zemin • keskin anomaliler","Hassasiyet • mavi/mineral/kırmızı eşikleri • renk sertliği","10 kategoriye renk ver • kaydet / sil • 2D/3D/4D/GMR","X/Y hücre • adım • başlangıç yönü","Türkçe sıra ve hücre uyarıları","Cihaz hazırlığı, tarama, verileri okuma ve raporlama"};
         for(int i=0;i<n.length;i++){
             LinearLayout card=new LinearLayout(this);card.setOrientation(LinearLayout.VERTICAL);card.setPadding(Ui.dp(this,18),Ui.dp(this,15),Ui.dp(this,18),Ui.dp(this,15));card.setBackground(Ui.bg(Color.rgb(16,29,39),14,this));
             TextView a=Ui.text(this,n[i],19,Color.WHITE);a.setTypeface(null,1);Ui.fitText(a,15,20,1);

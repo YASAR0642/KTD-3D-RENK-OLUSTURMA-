@@ -138,13 +138,7 @@ public final class ScanActivity extends Activity implements BluetoothClient.List
         addTopAction(topActions,"AKILLI RENK",true,v->SmartColorDialog.show(this,()->{gridView.setPalette(palette);}));
         root.addView(topActions,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,Ui.dp(this,58)));
         // Her ekranda görünür: 10 noktalı kullanıcı paleti editörü.
-        Button createPalette=Ui.button(this,"+ 10 RENK OLUŞTUR / KAYDET",true);
-        createPalette.setTextColor(Color.WHITE);
-        createPalette.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.rgb(0,128,111)));
-        createPalette.setOnClickListener(v->CustomPaletteEditor.show(this,()->{
-            palette=Prefs.palette(this);gridView.setPalette(palette);
-        }));
-        root.addView(createPalette,new LinearLayout.LayoutParams(-1,Ui.dp(this,46)));
+
         // 2D yalnız yumuşak harita: kare görünüm düğmesi ve 2D ANALİZ ET kaldırıldı.
         smoothMap=true;
 

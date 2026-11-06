@@ -1,0 +1,7 @@
+KTD 3D ANALYZER v3.9.108
+- Ana ekrandaki CANLI GPR girisi kaldirildi.
+- 2D ve 3D/4D ekranlarindan +10 RENK OLUSTUR/KAYDET dugmesi kaldirildi.
+- Ayarlar renk editorune 10 etiket eklendi: Metal, Degerli metal, Degersiz metal, Bosluk, Mineral, Yapi, Dogal zemin, Sert zemin, Kup, Toprak.
+- KAYDET ile birlikte SIL tusu eklendi; silinecek kayitli palet secilip onaylanir.
+- Mevcut kayitli paletler korunur. Etiketler sadece gorsel palet isaretleridir; bilimsel materyal siniflandirmasi yapmaz.
+- GitHub APK derleme is akisi eklidir.

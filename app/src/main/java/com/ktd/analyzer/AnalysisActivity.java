@@ -121,15 +121,7 @@ public final class AnalysisActivity extends Activity {
         modes.addView(smartColors,Ui.weight(1.25f));
         autoReport=Ui.button(this,"ANALİZ ET",true);autoReport.setOnClickListener(v->{ScanSessionStore.current=data;startActivity(new Intent(this,AutoAnalysisActivity.class));});
         root.addView(modes,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,Ui.dp(this,52)));
-        Button createPalette=Ui.button(this,"+ 10 RENK OLUŞTUR / KAYDET",true);
-        createPalette.setTextColor(Color.WHITE);
-        createPalette.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.rgb(0,128,111)));
-        createPalette.setOnClickListener(v->CustomPaletteEditor.show(this,()->{
-            palette=Prefs.palette(this);scale.setPalette(palette);
-            if(surface!=null)surface.setPalette(palette);
-            if(volume4d!=null)volume4d.setPalette(palette);
-        }));
-        root.addView(createPalette,new LinearLayout.LayoutParams(-1,Ui.dp(this,46)));
+
         root.addView(autoReport,new LinearLayout.LayoutParams(-1,Ui.dp(this,42)));
         autoReport.setVisibility(View.GONE);
         depthHeadline=null;depthDetail=null;

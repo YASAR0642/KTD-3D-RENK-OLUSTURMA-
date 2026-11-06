@@ -189,12 +189,6 @@ public final class MainActivity extends Activity implements BluetoothClient.List
                 "AYARLAR", "",
                 Color.rgb(92, 218, 255), SettingsActivity.class);
 
-        Button gpr=Ui.button(this,"CANLI GPR  •  Bluetooth radargram",true);
-        LinearLayout.LayoutParams gprLp=new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,Ui.dp(this,50));
-        gprLp.setMargins(Ui.dp(this,6),0,Ui.dp(this,6),Ui.dp(this,6));
-        gpr.setOnClickListener(v->startActivity(new Intent(this,LiveGprActivity.class)));
-        root.addView(gpr,gprLp);
         root.addView(grid, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1));
         setContentView(root);
