@@ -19,6 +19,7 @@ public final class AxisOverlayView extends View {
     private boolean volumeMode=false;
     // Sadece yeterli model uyumunda metre etiketleri: ham Z/CSV derinliğine yazılmaz.
     private float modelDepthMeters=Float.NaN, modelAxisMeters=Float.NaN;
+    private float displayDepthRange=5f;
     private float yaw=-34f,pitch=42f,zoom=1f,panX=0f,panY=0f;
     private final float[] proj=new float[16],view=new float[16],model=new float[16],mv=new float[16],mvp=new float[16];
 
@@ -33,6 +34,7 @@ public final class AxisOverlayView extends View {
         modelDepthMeters=estimate;modelAxisMeters=axisMax;invalidate();
     }
     public void setSpread(float ignored){invalidate();}
+    public void setDisplayDepthRange(float meters){displayDepthRange=Math.max(1f,meters);invalidate();}
     public void setCamera(float y,float pi,float z){setCamera(y,pi,z,0f,0f);} public void setCamera(float y,float pi,float z,float px,float py){yaw=y;pitch=pi;zoom=z;panX=px;panY=py;invalidate();}
 
     /** Yatay alanın en uzun kenarını yaklaşık 2.2 model birimine sığdıran fiziksel ölçek. */
@@ -47,9 +49,10 @@ public final class AxisOverlayView extends View {
      * 3D/çekim tarafında göreli derinlik bilgisini göstermek için kullanılan
      * eski fiziksel Z ölçeği. 4D geometri artık bunu KULLANMAZ.
      */
-    public static float depthExtentFor(ScanData d){
+    public static float depthExtentFor(ScanData d){return depthExtentFor(d,0f);}
+    public static float depthExtentFor(ScanData d,float displayRange){
         if(d==null)return .90f;
-        float m=d.maxDepthMeters();
+        float m=displayRange>0f?displayRange:d.maxDepthMeters();
         if(m<=0f)return .90f;
         // Uzun derinliklerde eksen fiziksel metreyi sıkıştırarak ekrana sığdırır.
         // Etiketler gerçek metre olarak kalır.
@@ -62,18 +65,20 @@ public final class AxisOverlayView extends View {
      * Görsel oran, çok derin ölçümlerde ekranı bozmasın diye sınırlı sıkıştırılır;
      * eksen etiketi yine gerçek metre değerini gösterir.
      */
-    public static float volumeExtentFor(ScanData d){
+    public static float volumeExtentFor(ScanData d){return volumeExtentFor(d,0f);}
+    public static float volumeExtentFor(ScanData d,float displayRange){
         if(d==null)return .62f;
-        float depth=d.maxDepthMeters();
+        float depth=displayRange>0f?displayRange:d.maxDepthMeters();
         if(depth<=0f)return .62f;
         // 25-30 m gibi büyük derinliklerde de hacim kutusu ekrana sığsın.
         float raw=(float)(0.52f+0.48f*Math.log10(1f+depth));
         return Math.max(.82f,Math.min(2.60f,raw*1.60f));
     }
 
-    public static float cameraDistanceFor(ScanData d,boolean volume){
-        if(!volume)return 4.8f;
-        return 5.15f+Math.max(0f,volumeExtentFor(d)-.62f)*.45f;
+    public static float cameraDistanceFor(ScanData d,boolean volume){return cameraDistanceFor(d,volume,0f);}
+    public static float cameraDistanceFor(ScanData d,boolean volume,float range){
+        if(!volume)return 4.8f+Math.max(0f,depthExtentFor(d,range)-1.2f)*.13f;
+        return 5.15f+Math.max(0f,volumeExtentFor(d,range)-.62f)*.45f;
     }
 
     @Override protected void onDraw(Canvas c){
@@ -85,7 +90,7 @@ public final class AxisOverlayView extends View {
         final float xmax=volumeMode? 1.15f: 1.22f;
         final float ymax=volumeMode? 1.05f: 1.02f;
         final float ymin=volumeMode?-1.05f:-1.02f;
-        final float zExtent=volumeMode?volumeExtentFor(data):depthExtentFor(data);
+        final float zExtent=volumeMode?volumeExtentFor(data,displayDepthRange):depthExtentFor(data,displayDepthRange);
 
         /*
          * KTD saha kuralı (FINAL):
@@ -126,32 +131,29 @@ public final class AxisOverlayView extends View {
                 p.setFakeBoldText(false);
             }else if(volumeMode){
                 float[] ez=project(ox,oy,-zExtent);
-                if(visible(ez))drawRelativeVolumeAxis(c,o,ez,Z_BLUE);
+                if(visible(ez))drawDepthAxis(c,o,ez,Z_BLUE,displayDepthRange);
                 p.setStyle(Paint.Style.FILL);p.setTextAlign(Paint.Align.CENTER);
                 p.setTextSize(sp(10));p.setFakeBoldText(true);p.setColor(Color.rgb(245,190,85));
                 // Sahne altı açıklama kaldırıldı; relatif eksende yüzde işaretleri kalır.
                 p.setFakeBoldText(false);
             }else{
-                float[] below=project(ox,oy,-.60f),above=project(ox,oy,.60f);
-                if(visible(below)&&visible(above))drawDeltaAxis(c,below,above,Z_BLUE,data.maxAbs());
-                p.setStyle(Paint.Style.FILL);p.setTextAlign(Paint.Align.CENTER);
-                p.setTextSize(sp(10));p.setFakeBoldText(true);p.setColor(Color.rgb(245,190,85));
-                // Sahne altı açıklama kaldırıldı.
-                p.setFakeBoldText(false);
+                // 3D'de de cetvel her zaman gorunur, tarama bos olsa bile.
+                float[] ez=project(ox,oy,-zExtent);
+                if(visible(ez))drawDepthAxis(c,o,ez,Z_BLUE,displayDepthRange);
             }
             return;
         }
         if(volumeMode){
             float[] ez=project(ox,oy,-zExtent);
             if(!visible(ez))return;
-            drawDepthAxis(c,o,ez,Z_BLUE,data.maxDepthMeters());
+            drawDepthAxis(c,o,ez,Z_BLUE,displayDepthRange);
             p.setStyle(Paint.Style.FILL);p.setFakeBoldText(true);p.setTextAlign(Paint.Align.RIGHT);
             p.setTextSize(sp(10.5f));p.setColor(Z_BLUE);p.setAlpha(255);
             c.drawText("0",o[0]-dp(5),o[1]-dp(5),p);p.setFakeBoldText(false);
         }else{
             float[] ez=project(ox,oy,-zExtent);
             if(!visible(ez))return;
-            drawDepthAxis(c,o,ez,Z_BLUE,data.maxDepthMeters());
+            drawDepthAxis(c,o,ez,Z_BLUE,displayDepthRange);
             p.setStyle(Paint.Style.FILL);p.setFakeBoldText(true);p.setTextAlign(Paint.Align.RIGHT);
             p.setTextSize(sp(10.5f));p.setColor(Z_BLUE);p.setAlpha(255);
             c.drawText("0",o[0]-dp(5),o[1]-dp(5),p);p.setFakeBoldText(false);
@@ -160,10 +162,10 @@ public final class AxisOverlayView extends View {
 
     private void buildMvp(){
         float aspect=getWidth()/(float)Math.max(1,getHeight());
-        float dist=cameraDistanceFor(data,volumeMode);
-        float far=Math.max(80f,dist+(volumeMode?volumeExtentFor(data):depthExtentFor(data))*4f+12f);
+        float dist=cameraDistanceFor(data,volumeMode,displayDepthRange);
+        float far=Math.max(80f,dist+(volumeMode?volumeExtentFor(data,displayDepthRange):depthExtentFor(data,displayDepthRange))*4f+12f);
         Matrix.perspectiveM(proj,0,volumeMode?42f:40f,aspect,.08f,far);
-        Matrix.setLookAtM(view,0,0,0,dist,0,0,0,0,1,0);Matrix.translateM(view,0,panX,panY,0f);
+        Matrix.setLookAtM(view,0,0,0,dist,0,0,0,0,1,0);Matrix.translateM(view,0,panX,panY,(volumeMode?volumeExtentFor(data,displayDepthRange):depthExtentFor(data,displayDepthRange))*.36f);
         Matrix.setIdentityM(model,0);Matrix.rotateM(model,0,pitch,1,0,0);Matrix.rotateM(model,0,yaw,0,1,0);Matrix.scaleM(model,0,zoom,zoom,zoom);
         Matrix.multiplyMM(mv,0,view,0,model,0);Matrix.multiplyMM(mvp,0,proj,0,mv,0);
     }
@@ -246,7 +248,7 @@ public final class AxisOverlayView extends View {
                 c.drawText(fmtDepth(d),x+nx*dp(22f),y+ny*dp(22f)+sp(3f),p);
             }
         }
-        p.setStyle(Paint.Style.FILL);p.setTextSize(sp(12.5f));p.setFakeBoldText(true);p.setTextAlign(Paint.Align.CENTER);p.setColor(color);p.setAlpha(255);c.drawText("Z (m)",b[0]+ux*dp(12f),b[1]+uy*dp(12f)+sp(4f),p);p.setFakeBoldText(false);
+        p.setStyle(Paint.Style.FILL);p.setTextSize(sp(12.5f));p.setFakeBoldText(true);p.setTextAlign(Paint.Align.CENTER);p.setColor(color);p.setAlpha(255);c.drawText("Z (görsel)",b[0]+ux*dp(17f),b[1]+uy*dp(17f)+sp(4f),p);p.setFakeBoldText(false);
     }
 
     private static float niceDepthStep(float max){

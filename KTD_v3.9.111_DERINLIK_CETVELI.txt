@@ -1,0 +1,7 @@
+KTD 3D ANALYZER v3.9.111
+3D/4D gorsel derinlik cetveli secenekleri: 0-3, 0-5, 0-10, 0-15, 0-20.
+3D/4D sahne geometrisi ile eksen etiketleri ayni gorsel aralikta yeniden olceklenir.
+Kamera otomatik ortalanir; elle pinch zoom/dondurme devam eder.
+Ham X/Y/Z/C, fiziksel derinlik tahmini, tarama/kayit islemleri degistirilmez.
+Z secimi KALIBRASYON veya gercek olcum derinligi iddiasi DEGILDIR.
+Thuban/CSV import korunmustur.

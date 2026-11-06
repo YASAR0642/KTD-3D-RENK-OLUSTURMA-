@@ -67,6 +67,9 @@ public final class AnalysisActivity extends Activity {
     private int depthAnalysisSequence=0;
     private int palette;
     private float depthSliceMeters=0f;
+    // Sadece sahne cetveli: dosyadaki X/Y/Z/C ve derinlik hesaplamasi degismez.
+    private float displayDepthMeters=5f;
+    private TextView autoDepthRangeLabel;
     private float volumeLevel=.35f;
     private boolean showing4D=false;
     private Button autoReport;
@@ -128,6 +131,8 @@ public final class AnalysisActivity extends Activity {
 
         host=new FrameLayout(this);root.addView(host,new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,0,1));
 
+        root.addView(buildDepthRangeControls(),new LinearLayout.LayoutParams(-1,Ui.dp(this,49)));
+
         // Ortak derinlik katmanı sürgüsü.
         // Kullanıcı seçilen metre seviyesinde 3D/4D görseli aşağı-yukarı gezdirir.
         levelControls=buildLevelControls();
@@ -154,6 +159,53 @@ public final class AnalysisActivity extends Activity {
     private void addBottom(LinearLayout actions,String text,View.OnClickListener l){
         Button b=Ui.button(this,text,text.equals("PAYLAŞ"));b.setOnClickListener(l);Ui.fitText(b,10,14,1);
         LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(0,Ui.dp(this,50),1);bp.setMargins(Ui.dp(this,3),Ui.dp(this,4),Ui.dp(this,3),Ui.dp(this,6));actions.addView(b,bp);
+    }
+
+    /** 3D ve 4D icin ortak otomatik cetvel (en fazla 20 m).
+     * Ham veriye ve ReferenceMeterModel / MagneticDepthEstimator formullerine dokunmaz.
+     * Tarama yoksa 0-5 m baslangic cetveli gosterilir.
+     */
+    private LinearLayout buildDepthRangeControls(){
+        LinearLayout bar=new LinearLayout(this);
+        bar.setPadding(Ui.dp(this,10),Ui.dp(this,3),Ui.dp(this,10),Ui.dp(this,3));
+        bar.setGravity(Gravity.CENTER_VERTICAL);bar.setBackgroundColor(Color.rgb(10,24,32));
+        TextView label=Ui.text(this,"OTOMATİK DERİNLİK",12,Color.WHITE);
+        Ui.fitText(label,10,12,1);
+        bar.addView(label,new LinearLayout.LayoutParams(0,Ui.dp(this,38),1));
+        autoDepthRangeLabel=Ui.text(this,"0–5 m",14,Color.rgb(97,211,247));
+        autoDepthRangeLabel.setGravity(Gravity.CENTER_VERTICAL|Gravity.END);
+        bar.addView(autoDepthRangeLabel,new LinearLayout.LayoutParams(Ui.dp(this,110),Ui.dp(this,38)));
+        return bar;
+    }
+
+    private float automaticDepthRange(){
+        float detected=0f;
+        // Orijinal cihaz derinligi mevcutsa goz ardi edilmez.
+        if(data!=null&&data.hasDepthData())detected=Math.max(detected,data.maxDepthMeters());
+        // Halihazirda kullanilan 3D/4D hesaplamasi: sadece okunur.
+        if(visualData!=null&&visualData.hasDepthData())detected=Math.max(detected,visualData.maxDepthMeters());
+        // Mevcut hesaplamanin urettiği tahmin varsa buna da bakilir.
+        if(lastDepthResult!=null&&lastDepthResult.hasEstimate())
+            detected=Math.max(detected,(float)lastDepthResult.depthMeters);
+        if(!Float.isFinite(detected)||detected<=0f)return 5f;
+        // Cetvel maksimum 20 m; goruntuleme araligi tam metreye yukari yuvarlanir.
+        return Math.max(1f,Math.min(20f,(float)Math.ceil(detected)));
+    }
+
+    private void applyDisplayRange(){
+        float next=automaticDepthRange();
+        boolean changed=Math.abs(next-displayDepthMeters)>.001f;
+        displayDepthMeters=next;
+        if(autoDepthRangeLabel!=null)
+            autoDepthRangeLabel.setText(String.format(Locale.forLanguageTag("tr-TR"),"0–%.0f m",displayDepthMeters));
+        if(surface!=null)surface.setDisplayDepthRange(displayDepthMeters);
+        if(volume4d!=null)volume4d.setDisplayDepthRange(displayDepthMeters);
+        if(currentAxes!=null)currentAxes.setDisplayDepthRange(displayDepthMeters);
+        // Sahne yalniz aralik degisince yeniden sigdirilir; kullanicinin zoom'u korunur.
+        if(changed){
+            if(showing4D&&volume4d!=null)volume4d.resetCamera();
+            else if(!showing4D&&surface!=null)surface.resetCamera();
+        }
     }
 
     private LinearLayout buildLevelControls(){
@@ -307,6 +359,7 @@ public final class AnalysisActivity extends Activity {
         host.addView(surface,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
         AxisOverlayView ax=new AxisOverlayView(this);ax.setData(visualData);ax.setVolumeMode(false);surface.setAxisOverlay(ax);
         currentAxes=ax;applyModelToScene();
+        applyDisplayRange();
         host.addView(ax,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
         volume4d=null;isoControls.setVisibility(View.GONE);styleModeButtons(false);
         if(levelSeek!=null){float md=visualData==null?0f:visualData.maxDepthMeters();levelSeek.setProgress(md<=0f?0:Math.round((depthSliceMeters/md)*100f));updateDepthLabel();}
@@ -328,6 +381,7 @@ public final class AnalysisActivity extends Activity {
         host.addView(volume4d,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
         AxisOverlayView ax=new AxisOverlayView(this);ax.setData(visualData);ax.setVolumeMode(true);volume4d.setAxisOverlay(ax);
         currentAxes=ax;applyModelToScene();
+        applyDisplayRange();
         host.addView(ax,new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,FrameLayout.LayoutParams.MATCH_PARENT));
         surface=null;isoControls.setVisibility(View.VISIBLE);styleModeButtons(true);
         if(levelSeek!=null){float md=visualData==null?0f:visualData.maxDepthMeters();
@@ -353,6 +407,7 @@ public final class AnalysisActivity extends Activity {
                 refreshDepthDisplay();
                 refreshNeutralInfo();
                 applyModelToScene();
+                applyDisplayRange();
             });
         },"ktd-derinlik-tahmini").start();
     }

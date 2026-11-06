@@ -8,8 +8,8 @@ android {
         applicationId 'com.ktd.analyzer'
         minSdk 23
         targetSdk 35
-        versionCode 39110
-        versionName '3.9.110-thuban-destegi'
+        versionCode 39112
+        versionName '3.9.112-otomatik-derinlik-20m'
     }
 
     buildTypes {

@@ -41,6 +41,7 @@ public final class Volume4DView extends GLSurfaceView {
         renderer=new Renderer4D();setRenderer(renderer);setRenderMode(RENDERMODE_WHEN_DIRTY);
         scaler=new ScaleGestureDetector(c,new ScaleGestureDetector.SimpleOnScaleGestureListener(){@Override public boolean onScale(ScaleGestureDetector d){renderer.zoom=clamp(renderer.zoom*d.getScaleFactor(),.24f,6.0f);syncAxes();requestRender();return true;}});
     }
+    public void setDisplayDepthRange(float meters){renderer.displayRange=Math.max(1f,meters);renderer.dirty=true;if(axisOverlay!=null)axisOverlay.setDisplayDepthRange(meters);requestRender();}
     public void setData(ScanData d){renderer.data=d;renderer.dirty=true;if(axisOverlay!=null)axisOverlay.setData(d);requestRender();}
     public void notifyDataChanged(){renderer.dirty=true;requestRender();}
     public void setPalette(int p){renderer.palette=p;renderer.dirty=true;requestRender();}
@@ -59,7 +60,7 @@ public final class Volume4DView extends GLSurfaceView {
     public void setSharpness(float v){renderer.sharpness=clamp(v,.70f,2.50f);renderer.dirty=true;requestRender();}
     public void setSpread(float v){renderer.spread=clamp(v,.60f,1.60f);renderer.dirty=true;requestRender();}
     public void setLayers(int v){renderer.layers=Math.max(1,Math.min(6,v));renderer.dirty=true;requestRender();}
-    public void resetCamera(){renderer.yaw=-28;renderer.pitch=25;renderer.zoom=1;renderer.panX=0;renderer.panY=0;syncAxes();requestRender();}
+    public void resetCamera(){renderer.yaw=-28;renderer.pitch=25;renderer.zoom=1.18f;renderer.panX=0;renderer.panY=0;syncAxes();requestRender();}
     public void setAxisOverlay(AxisOverlayView v){axisOverlay=v;if(v!=null){v.setVolumeMode(true);v.setData(renderer.data);v.setSpread(renderer.spread);syncAxes();}}
     private void syncAxes(){if(axisOverlay!=null)axisOverlay.setCamera(renderer.yaw,renderer.pitch,renderer.zoom,renderer.panX,renderer.panY);}
     @Override public boolean onTouchEvent(MotionEvent e){
@@ -92,7 +93,7 @@ public final class Volume4DView extends GLSurfaceView {
     private static final class Renderer4D implements GLSurfaceView.Renderer{
         volatile ScanData data;volatile int palette=0;volatile boolean dirty=true;volatile float yaw=-28,pitch=25,zoom=1,panX=0,panY=0;
         volatile boolean smoothing=true,showWireframe=true;
-        volatile float threshold=.35f,spread=1.0f,depthFocusMeters=0f;volatile int layers=2;
+        volatile float threshold=.35f,spread=1.0f,depthFocusMeters=0f,displayRange=5f;volatile int layers=2;
         volatile float groundOpacity=.10f,sharpness=1.50f;
         volatile float modelDepthMeters=Float.NaN,modelAxisMeters=Float.NaN;
         private int width=1,height=1,program,posLoc,normLoc,colorLoc,mvpLoc,modelLoc;
@@ -101,7 +102,7 @@ public final class Volume4DView extends GLSurfaceView {
 
         @Override public void onSurfaceCreated(GL10 gl,EGLConfig cfg){GLES20.glClearColor(.016f,.032f,.045f,1);GLES20.glEnable(GLES20.GL_DEPTH_TEST);GLES20.glDisable(GLES20.GL_BLEND);program=createProgram(VS,FS);posLoc=GLES20.glGetAttribLocation(program,"aPos");normLoc=GLES20.glGetAttribLocation(program,"aNorm");colorLoc=GLES20.glGetAttribLocation(program,"aColor");mvpLoc=GLES20.glGetUniformLocation(program,"uMVP");modelLoc=GLES20.glGetUniformLocation(program,"uModel");buildBox(.62f);}
         @Override public void onSurfaceChanged(GL10 gl,int w,int h){width=Math.max(1,w);height=Math.max(1,h);GLES20.glViewport(0,0,width,height);}
-        @Override public void onDrawFrame(GL10 gl){if(dirty){buildMeshes();dirty=false;}GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);GLES20.glUseProgram(program);float aspect=width/(float)Math.max(1,height);float camera=AxisOverlayView.cameraDistanceFor(data,true);float far=Math.max(80f,camera+AxisOverlayView.volumeExtentFor(data)*4f+12f);Matrix.perspectiveM(proj,0,42f,aspect,.08f,far);Matrix.setLookAtM(view,0,0,0,camera,0,0,0,0,1,0);Matrix.translateM(view,0,panX,panY,0f);Matrix.setIdentityM(model,0);Matrix.rotateM(model,0,pitch,1,0,0);Matrix.rotateM(model,0,yaw,0,1,0);Matrix.scaleM(model,0,zoom,zoom,zoom);Matrix.multiplyMM(mv,0,view,0,model,0);Matrix.multiplyMM(mvp,0,proj,0,mv,0);GLES20.glUniformMatrix4fv(mvpLoc,1,false,mvp,0);GLES20.glUniformMatrix4fv(modelLoc,1,false,model,0);
+        @Override public void onDrawFrame(GL10 gl){if(dirty){buildMeshes();dirty=false;}GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);GLES20.glUseProgram(program);float aspect=width/(float)Math.max(1,height);float camera=AxisOverlayView.cameraDistanceFor(data,true,displayRange);float far=Math.max(80f,camera+AxisOverlayView.volumeExtentFor(data,displayRange)*4f+12f);Matrix.perspectiveM(proj,0,42f,aspect,.08f,far);Matrix.setLookAtM(view,0,0,0,camera,0,0,0,0,1,0);Matrix.translateM(view,0,panX,panY,AxisOverlayView.volumeExtentFor(data,displayRange)*.36f);Matrix.setIdentityM(model,0);Matrix.rotateM(model,0,pitch,1,0,0);Matrix.rotateM(model,0,yaw,0,1,0);Matrix.scaleM(model,0,zoom,zoom,zoom);Matrix.multiplyMM(mv,0,view,0,model,0);Matrix.multiplyMM(mvp,0,proj,0,mv,0);GLES20.glUniformMatrix4fv(mvpLoc,1,false,mvp,0);GLES20.glUniformMatrix4fv(modelLoc,1,false,model,0);
             // İç çekirdek önce opak; dış izoyüzeyler ve doğal zemin sonra saydam.
             GLES20.glDisable(GLES20.GL_BLEND);
             GLES20.glDepthMask(true);
@@ -140,8 +141,8 @@ public final class Volume4DView extends GLSurfaceView {
         private void buildMeshes(){
             ScanData d=data;if(d==null||d.count==0){
                 meshes=new Mesh[0];
-                buildBox(AxisOverlayView.volumeExtentFor(d));
-                groundShell=buildGroundShell(AxisOverlayView.volumeExtentFor(d));
+                buildBox(AxisOverlayView.volumeExtentFor(d,displayRange));
+                groundShell=buildGroundShell(AxisOverlayView.volumeExtentFor(d,displayRange));
                 return;
             }
             DenseField dense=DenseField.from(d,44,smoothing);float posMax=0,negMax=0;for(int i=0;i<dense.value.length;i++)if(dense.valid[i]){float v=dense.value[i];if(v>posMax)posMax=v;if(-v>negMax)negMax=-v;}
@@ -155,18 +156,18 @@ public final class Volume4DView extends GLSurfaceView {
                 if(posMax>10.5f)out.add(buildIso(dense,d,true,posMax,level,a));
                 if(negMax>10.5f)out.add(buildIso(dense,d,false,negMax,level,a));
             }
-            buildBox(AxisOverlayView.volumeExtentFor(d));
+            buildBox(AxisOverlayView.volumeExtentFor(d,displayRange));
             // Opak çekirdeği öne almak için diziyi kuvvet sırasına göre ters çevir.
             java.util.Collections.reverse(out);
             meshes=out.toArray(new Mesh[0]);
-            groundShell=buildGroundShell(AxisOverlayView.volumeExtentFor(d));
+            groundShell=buildGroundShell(AxisOverlayView.volumeExtentFor(d,displayRange));
         }
 
         private Mesh buildIso(DenseField dense,ScanData source,boolean positive,float signMax,float levelFrac,float alpha){
             final int NX=layers>=5?22:(layers>=3?26:30);
             final int NY=NX;
             final int NZ=layers>=5?17:(layers>=3?20:24);
-            final float ZMAX=AxisOverlayView.volumeExtentFor(source);
+            final float ZMAX=AxisOverlayView.volumeExtentFor(source,displayRange);
             final boolean realDepth=source.hasDepthData();
             final boolean modelReady=false; // No unverified model metre on axes
             final float maxDepth=realDepth?Math.max(.05f,source.maxDepthMeters()):
@@ -207,7 +208,7 @@ public final class Volume4DView extends GLSurfaceView {
                         depthM=maxDepth*.5f; // No valid C: display centre in C-index coordinates
                     }
                     depthM=clamp(depthM,0f,maxDepth);
-                    float centerNorm=clamp(depthM/maxDepth,0f,1f);
+                    float centerNorm=realDepth?clamp(depthM/displayRange,0f,1f):clamp(depthM/maxDepth,0f,1f);
 
                     float zNorm=clamp((-pz)/Math.max(.001f,ZMAX),0f,1f);
                     float dzNorm=(zNorm-centerNorm)/sigmaNorm;

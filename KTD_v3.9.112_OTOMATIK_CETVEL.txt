@@ -1,0 +1,7 @@
+KTD 3D ANALYZER v3.9.112
+3D ve 4D ortak otomatik Z cetveli: en yuksek hesaplanan mevcut derinlik degerine gore 0-1 ile 0-20 m arasi, tam metreye yuvarlanir.
+20 m ustu olcum kaydi degismez, yalniz ekran cetveli 20 m ile sinirlanir.
+Henuz veri yoksa 0-5 m baslangic cetveli gosterilir.
+Manuel cetvel secenekleri kaldirildi; zoom ve 3D/4D dondurme devam eder.
+Ham veri, derinlik formulu, Bluetooth, Thuban CSV kayit yapisi degistirilmedi.
+Yalnizca goruntuleme duzenlemesi; cetvel degisimi fiziksel olcum sinirini artirmaz.

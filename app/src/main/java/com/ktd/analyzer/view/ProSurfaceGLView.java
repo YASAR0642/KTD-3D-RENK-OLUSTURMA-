@@ -39,6 +39,7 @@ public final class ProSurfaceGLView extends GLSurfaceView {
             @Override public boolean onScale(ScaleGestureDetector d){renderer.zoom=clamp(renderer.zoom*d.getScaleFactor(),.48f,3.2f);syncAxes();requestRender();return true;}
         });
     }
+    public void setDisplayDepthRange(float meters){renderer.displayRange=Math.max(1f,meters);renderer.dirty=true;if(axisOverlay!=null)axisOverlay.setDisplayDepthRange(meters);requestRender();}
     public void setData(ScanData d){renderer.data=d;renderer.dirty=true;if(axisOverlay!=null)axisOverlay.setData(d);requestRender();}
     public void notifyDataChanged(){renderer.dirty=true;requestRender();}
     public void setPalette(int p){renderer.palette=p;renderer.dirty=true;requestRender();}
@@ -54,7 +55,7 @@ public final class ProSurfaceGLView extends GLSurfaceView {
     /** Geriye uyumluluk için eski API: oranı derinlik katmanına dönüştürür. */
     public void setSectionLevel(float v){float md=renderer.data==null?0f:renderer.data.maxDepthMeters();renderer.depthSliceMeters=Math.max(0f,Math.min(md,md*clamp(v,0f,.90f)));renderer.dirty=true;requestRender();}
     public void setMode(int m){renderer.mode=m;renderer.dirty=true;if(m==CONTOUR){renderer.yaw=0;renderer.pitch=88;}requestRender();}
-    public void resetCamera(){renderer.yaw=-34;renderer.pitch=42;renderer.zoom=1;renderer.panX=0;renderer.panY=0;syncAxes();requestRender();}
+    public void resetCamera(){renderer.yaw=-34;renderer.pitch=42;renderer.zoom=1.18f;renderer.panX=0;renderer.panY=0;syncAxes();requestRender();}
     public void setAxisOverlay(AxisOverlayView v){axisOverlay=v;if(v!=null){v.setVolumeMode(false);v.setData(renderer.data);syncAxes();}}
     private void syncAxes(){if(axisOverlay!=null)axisOverlay.setCamera(renderer.yaw,renderer.pitch,renderer.zoom,renderer.panX,renderer.panY);}
 
@@ -93,7 +94,7 @@ public final class ProSurfaceGLView extends GLSurfaceView {
     private static final class SurfaceRenderer implements GLSurfaceView.Renderer{
         volatile ScanData data; volatile int palette=0,mode=ADVANCED; volatile boolean dirty=true;
         volatile boolean smoothing=true,showWireframe=true;
-        volatile float yaw=-34,pitch=42,zoom=1,panX=0,panY=0,depthSliceMeters=0f;
+        volatile float yaw=-34,pitch=42,zoom=1,panX=0,panY=0,depthSliceMeters=0f,displayRange=5f;
         volatile float modelDepthMeters=Float.NaN,modelAxisMeters=Float.NaN,displayGain=1f;
         private final Context ctx;
         private int width=1,height=1,program,posLoc,normLoc,colorLoc,mvpLoc,modelLoc;
@@ -109,7 +110,7 @@ public final class ProSurfaceGLView extends GLSurfaceView {
         @Override public void onDrawFrame(GL10 gl){
             if(dirty){buildMesh();dirty=false;}
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);GLES20.glUseProgram(program);
-            float aspect=width/(float)Math.max(1,height);float camera=AxisOverlayView.cameraDistanceFor(data,false);float far=Math.max(120f,camera+AxisOverlayView.depthExtentFor(data)*4f+20f);Matrix.perspectiveM(proj,0,40f,aspect,.08f,far);Matrix.setLookAtM(view,0,0,0,camera,0,0,0,0,1,0);Matrix.translateM(view,0,panX,panY,0f);Matrix.setIdentityM(model,0);Matrix.rotateM(model,0,pitch,1,0,0);Matrix.rotateM(model,0,yaw,0,1,0);Matrix.scaleM(model,0,zoom,zoom,zoom);Matrix.multiplyMM(mv,0,view,0,model,0);Matrix.multiplyMM(mvp,0,proj,0,mv,0);
+            float aspect=width/(float)Math.max(1,height);float camera=AxisOverlayView.cameraDistanceFor(data,false,displayRange);float far=Math.max(120f,camera+AxisOverlayView.depthExtentFor(data,displayRange)*4f+20f);Matrix.perspectiveM(proj,0,40f,aspect,.08f,far);Matrix.setLookAtM(view,0,0,0,camera,0,0,0,0,1,0);Matrix.translateM(view,0,panX,panY,AxisOverlayView.depthExtentFor(data,displayRange)*.36f);Matrix.setIdentityM(model,0);Matrix.rotateM(model,0,pitch,1,0,0);Matrix.rotateM(model,0,yaw,0,1,0);Matrix.scaleM(model,0,zoom,zoom,zoom);Matrix.multiplyMM(mv,0,view,0,model,0);Matrix.multiplyMM(mvp,0,proj,0,mv,0);
             GLES20.glUniformMatrix4fv(mvpLoc,1,false,mvp,0);GLES20.glUniformMatrix4fv(modelLoc,1,false,model,0);
             if(triPos!=null&&triCount>0)drawTriangles(); if(linePos!=null&&lineCount>0&&mode!=CONTOUR&&showWireframe)drawLines();
         }
@@ -129,7 +130,7 @@ public final class ProSurfaceGLView extends GLSurfaceView {
             float[] z=new float[W*H];
             float maxDepth=Math.max(.05f,f.maxDepth);
             boolean depthAvailable=d.hasDepthData();
-            float zExtent=AxisOverlayView.depthExtentFor(d);
+            float zExtent=AxisOverlayView.depthExtentFor(d,displayRange);
             boolean modelReady=!depthAvailable && Float.isFinite(modelDepthMeters) && modelDepthMeters>0f && Float.isFinite(modelAxisMeters)&&modelAxisMeters>=modelDepthMeters;
             float gain=Prefs.heightGain(ctx)*displayGain;
             float emboss=(mode==SURFACE?.025f:.040f)*gain;
@@ -138,7 +139,7 @@ public final class ProSurfaceGLView extends GLSurfaceView {
                 if(!f.valid[i]){z[i]=0f;continue;}
                 if(mode==CONTOUR){z[i]=0f;continue;}
                 float depthM=f.depthValid[i]?Math.max(0f,Math.min(maxDepth,Math.abs(f.depth[i]))):0f;
-                float baseZ=-clamp(depthM/maxDepth,0f,1f)*zExtent;
+                float baseZ=-clamp(depthM/displayRange,0f,1f)*zExtent;
                 float relief=clamp(f.value[i]/scale,-1.0f,1.0f)*emboss;
                 // V3D ham dosyasında C/metre yoksa anomali rölyefini yine göster;
                 // bu Z yüksekliği fiziki derinlik değildir.
