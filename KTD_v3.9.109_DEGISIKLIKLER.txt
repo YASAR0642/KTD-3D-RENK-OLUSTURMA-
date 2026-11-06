@@ -1,0 +1,10 @@
+KTD 3D ANALYZER v3.9.109
+
+- Ayarlar ekranindaki ust + RENK OLUSTUR · 10 NOKTA kopyasi kaldirildi; RENK OLUSTUR menusu korundu.
+- 2D cizim alani sadece iki parmak zoom; dokunmatik dondurme ve surukleme kapatildi.
+- WhatsApp/Dosyalar ile acilan CSV ve V3D once 2D onizleme olarak goruntulenir.
+- Kayitlar ekranindan acilan dis CSV ve kayitlar da once 2D'de goruntulenir.
+- 2D > 3D / 4D mevcut ScanData matrisini kullanir; yeniden analiz edilebilir.
+- Dis dosya incelemesinde olcum kayitlari korunur, Bluetooth veri girisi bloklanir. Yeni Tarama ile temiz tarama baslatilir.
+- SGY acilis yolu degistirilmedi.
+- Renk paletleri ve tum hedef hesaplama yontemleri korundu.

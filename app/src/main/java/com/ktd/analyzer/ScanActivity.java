@@ -56,6 +56,7 @@ public final class ScanActivity extends Activity implements BluetoothClient.List
     private ScanGridContourView gridView;
 
     private boolean running=true,awaitZero=true,manualSampleRequested=false,groundModeArmed=false;
+    private boolean importedPreview=false;
     private boolean showValue=false,showDepth=false;
     private SensorFrame lastFrame,replayToIgnore;
     private long lastCapture=0,linePauseUntil=0,pendingRequestedAtMs=0;
@@ -73,8 +74,19 @@ public final class ScanActivity extends Activity implements BluetoothClient.List
         voice=new VoiceGuide(this);
         voice.setEnabled(Prefs.voiceGuide(this));
         palette=Prefs.palette(this);
-        newData();
+        if(getIntent().getBooleanExtra("open_imported_2d",false) && ScanSessionStore.current!=null){
+            data=ScanSessionStore.current;
+            importedPreview=true;
+            running=false;
+            index=data.rows*data.cols;
+        }else{
+            newData();
+        }
         build();
+        if(importedPreview){
+            gridView.setActiveCell(-1,-1);
+            Toast.makeText(this,"CSV 2D görünümde açıldı · 3D / 4D ile aynı veriyi inceleyin",Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override protected void onStart(){
@@ -83,9 +95,9 @@ public final class ScanActivity extends Activity implements BluetoothClient.List
         // O paket yeni taramanın referansı sayılmaz; ilk GERÇEK yeni paket beklenir.
         replayToIgnore=BluetoothClient.lastFrame();
         bt.activate();
-        BluetoothClient.addHardwareSampleListener(hardwareSampleListener);
+        if(!importedPreview)BluetoothClient.addHardwareSampleListener(hardwareSampleListener);
         updateConnectionButton();
-        ensureGroundMode();
+        if(!importedPreview)ensureGroundMode();
     }
     @Override protected void onResume(){
         super.onResume();
@@ -268,6 +280,10 @@ public final class ScanActivity extends Activity implements BluetoothClient.List
         if(!archiveOldScan())return false;
         SensorFrame before=BluetoothClient.lastFrame();
         newData();
+        if(importedPreview){
+            importedPreview=false;
+            BluetoothClient.addHardwareSampleListener(hardwareSampleListener);
+        }
         replayToIgnore=before;
         if(gridView!=null){
             gridView.setData(data);
@@ -310,6 +326,10 @@ public final class ScanActivity extends Activity implements BluetoothClient.List
      * ileride cihaz SAMPLE komutuna tek paketle cevap verdiğinde aynı buton değişmeden çalışır.
      */
     private void requestSample(){
+        if(importedPreview){
+            Toast.makeText(this,"Bu ekran içe aktarılan CSV incelemesidir. Yeni ölçüm için YENİ TARAMA seçin.",Toast.LENGTH_LONG).show();
+            return;
+        }
         if(!BluetoothClient.isConnected()){Toast.makeText(this,"Bluetooth bağlantısı yok",Toast.LENGTH_SHORT).show();bt.pickPaired(this);return;}
         if(data.full()){Toast.makeText(this,"Tarama tamamlandı. Yeni Tarama seçin.",Toast.LENGTH_SHORT).show();return;}
         if(BluetoothClient.isContinuousDataSource() && (awaitZero||!ref.hasReference())){

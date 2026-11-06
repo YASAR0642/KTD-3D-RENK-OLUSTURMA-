@@ -154,7 +154,7 @@ public final class IncomingCsvActivity extends Activity {
                 if (count>0) {
                     if (count==1 && opened!=null) {
                         ScanSessionStore.current=opened;
-                        startActivity(new Intent(this,AnalysisActivity.class));
+                        startActivity(new Intent(this,ScanActivity.class).putExtra("open_imported_2d",true));
                     } else {
                         startActivity(new Intent(this,RecordsActivity.class));
                     }

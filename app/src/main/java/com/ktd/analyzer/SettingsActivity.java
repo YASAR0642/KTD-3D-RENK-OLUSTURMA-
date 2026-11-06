@@ -23,11 +23,6 @@ public final class SettingsActivity extends Activity {
     private void build(){
         LinearLayout root=new LinearLayout(this);root.setOrientation(LinearLayout.VERTICAL);root.setPadding(Ui.dp(this,14),Ui.dp(this,8),Ui.dp(this,14),Ui.dp(this,14));root.setBackgroundColor(Color.rgb(7,16,24));
         LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);top.addView(Ui.title(this,"KTD 3D ANALYZER"),new LinearLayout.LayoutParams(0,Ui.dp(this,50),1));Button back=Ui.button(this,"‹",false);back.setOnClickListener(v->finish());top.addView(back,new LinearLayout.LayoutParams(Ui.dp(this,56),Ui.dp(this,40)));root.addView(top);
-        Button createColors=Ui.button(this,"+ RENK OLUŞTUR · 10 NOKTA",true);
-        createColors.setTextColor(Color.WHITE);
-        createColors.setBackgroundTintList(android.content.res.ColorStateList.valueOf(Color.rgb(0,126,112)));
-        createColors.setOnClickListener(v->CustomPaletteEditor.show(this));
-        root.addView(createColors,new LinearLayout.LayoutParams(-1,Ui.dp(this,58)));
         Button smartSettings=Ui.button(this,"AKILLI RENK · HASSASİYET / EŞİK",false);
         smartSettings.setOnClickListener(v->SmartColorDialog.show(this,null));
         root.addView(smartSettings,new LinearLayout.LayoutParams(-1,Ui.dp(this,48)));

@@ -134,7 +134,7 @@ public final class RecordsActivity extends Activity {
             final ScanData opened=d; final String failure=error;
             runOnUiThread(()->{
                 if(isFinishing()||isDestroyed())return;
-                if(opened!=null){ScanSessionStore.current=opened;startActivity(new Intent(this,AnalysisActivity.class));}
+                if(opened!=null){ScanSessionStore.current=opened;startActivity(new Intent(this,ScanActivity.class).putExtra("open_imported_2d",true));}
                 else Toast.makeText(this,"CSV açılamadı: "+failure,Toast.LENGTH_LONG).show();
             });
         },"ktd-open-phone-csv").start();
@@ -215,7 +215,7 @@ public final class RecordsActivity extends Activity {
     }
 
     private void open(File csv){
-        try{ScanSessionStore.current=CsvUtil.readFile(csv);startActivity(new Intent(this,AnalysisActivity.class));}
+        try{ScanSessionStore.current=CsvUtil.readFile(csv);startActivity(new Intent(this,ScanActivity.class).putExtra("open_imported_2d",true));}
         catch(Exception e){Toast.makeText(this,"Dosya açılamadı: "+e.getMessage(),Toast.LENGTH_LONG).show();}
     }
 
@@ -291,7 +291,7 @@ public final class RecordsActivity extends Activity {
                 load();
                 if(success==1&&selected.size()==1&&opened!=null){
                     ScanSessionStore.current=opened;
-                    startActivity(new Intent(this,AnalysisActivity.class));
+                    startActivity(new Intent(this,ScanActivity.class).putExtra("open_imported_2d",true));
                 }else if(success>0){Toast.makeText(this,success+" dosya KTD Kayıtlarıma aktarıldı.",Toast.LENGTH_LONG).show();}
                 if(error!=null)Toast.makeText(this,"Bazı dosyalar açılamadı: "+error,Toast.LENGTH_LONG).show();
             });

@@ -8,8 +8,8 @@ android {
         applicationId 'com.ktd.analyzer'
         minSdk 23
         targetSdk 35
-        versionCode 39108
-        versionName '3.9.108-renk-kategori-yonetimi'
+        versionCode 39109
+        versionName '3.9.109-2d-csv-onizleme'
     }
 
     buildTypes {
