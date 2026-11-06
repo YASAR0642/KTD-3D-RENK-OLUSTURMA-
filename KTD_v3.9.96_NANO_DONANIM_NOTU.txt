@@ -1,0 +1,22 @@
+KTD 3D ANALYZER 3.9.96 - Nano A1/A2 uyum notu
+
+Dogrulanan kablo duzeni: A1 alt, A2 ust, aralik 0.30 m, D3 cekim butonu,
+D9 buzzer; HC-05 Bluetooth. Nano icinde ADS1115 YOK.
+Sensorun 2.5 V REF hatti, Nano ADC referans gerilimiyle karistirilmamalidir.
+
+Bu Android surumu iki paket turunu destekler:
+  1) Sens Pro HEX'in halihazirda gonderdigi tek sayi: 444\n
+     Eski otomatik fiziksel butonlu cekim AYNI SEKILDE calismaya devam eder.
+  2) Gelecekte iki kanal acikca iletilirse: A1=444,A2=438\n
+     Her iki kanal gercekten pakette yer aldiginda (A1-A2)/0.30 ADC/m hesaplanir.
+     Ortak arayuz icin 511.5 + (A1-A2)/2 sinyali kullanilir; yeni taramanin
+     ilk paketi bu sinyale referans olarak alinir.
+
+DIKKAT: Bu paket Arduino Nano uzerindeki Sens Pro HEX'i degistirmez.
+Tek sayilik HEX akisi A2 degerini ayri vermedigi icin bu akistan gercek
+iki kanalli gradyan hesabi cikartilamaz. 800/fark proje sinyal indeksi
+metre cinsinden fiziksel derinlik dogrulamasi degildir.
+
+Kaynak kontrolu: SensorParser, SensorFrame, SensorStreamDecoder,
+NanoGradiometerSignal. ESP32 komutlu protokolu ve aktivasyon degistirilmedi.
+Tam Android APK derlemesi burada yapilmadi; GitHub Actions'la derleyin.

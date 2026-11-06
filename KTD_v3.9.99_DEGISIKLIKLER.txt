@@ -1,0 +1,6 @@
+KTD 3D ANALYZER v3.9.99
+Kaynak: v3.9.97
+- 2D derinlik etiketlerinde m birimi gizlendi; matematiksel derinlik hesabı değişmedi.
+- 2D iki parmakla zoom (0.5x-8x), çift parmakla kaydırma ve döndürme, tek parmak yatay sürüklemeyle döndürme.
+- Bluetooth cihaz listesinde yalnız isimler görünür, adresler bağlantı için arka planda kullanılmaya devam eder.
+- 3D/4D, GPR ve veri toplama işleyişi değiştirilmedi.

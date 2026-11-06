@@ -1,0 +1,10 @@
+<resources>
+    <color name="bg">#071018</color>
+    <color name="panel">#101D27</color>
+    <color name="panel2">#172A36</color>
+    <color name="cyan">#18D8FF</color>
+    <color name="teal">#23D6B0</color>
+    <color name="text">#F4F8FB</color>
+    <color name="muted">#9FB2C1</color>
+    <color name="icon_bg">#071018</color>
+</resources>

@@ -1,0 +1,17 @@
+KTD 3D ANALYZER v3.9.91 — DERINLIK GOSTERIM DUZELTMESI
+
+1) 3D/4D ters sinyalden elde edilen 800/Z degeri gercek metre olarak gosterilmez.
+   Bu sayi C sinyal indeksidir; 4D Z ekseni 0-100% goreli katman olarak gosterilir.
+2) Derinlik kaydiricisi, bu yapay hacimde C katmani (%) secer.
+   Bir katmanda anomali gorunmemesi hedefin gercekte yok oldugunu gostermez.
+3) 4D ANALIZ ET raporu negatif/pozitif sinyal C indeksini metre olmadan yazar.
+4) 2D ters sinyal hucre etiketleri C:xx.xx seklinde yazilir.
+5) 3D/4D ust satirindaki islevsiz KAMERA dugmesi kaldirildi.
+6) Nano fiziksel butonu, Bluetooth OTOMATIK secimi, ESP32 ve aktivasyon kodlari
+   degistirilmedi.
+
+TEKNIK NEDEN: KTD ReferenceMeterModel: delta=Z-R; normalized=1023*abs(delta)/headroom;
+C=800/normalized. Delta +16 kadar kucukken C 20-40 olabilir; bu bir mesafe olcumu degildir.
+Fiziksel derinlik icin hedefe/zemine ozel sahada dogrulama gereklidir.
+
+Kaynak degisiklikleri statik kontrol edildi; tam Android SDK Gradle build'i burada yapilmadi.

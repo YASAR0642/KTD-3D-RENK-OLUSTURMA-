@@ -1,0 +1,8 @@
+KTD 3D ANALYZER v3.9.97
+
+Yalniz referans farkindan turetilen ortak ekrana yazilan derinlik olcegi 10a bolundu.
+Yeni proje hesap gostergesi: (800 / abs(olcum - ortam_referansi)) / 10.
+Esik: |fark| >= 15.
+2D/3D/4D/GMR/ANALIZ ET bu ortak modeli kullanir.
+Orijinal ham olcum, CSV X/Y/Z/C, Nano/ESP32, Bluetooth butonu ve renkler ayni kalir.
+Bu olcek duzeltmesi fiziksel derinlik kalibrasyonu degildir.

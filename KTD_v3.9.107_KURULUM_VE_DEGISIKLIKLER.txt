@@ -1,0 +1,19 @@
+KTD 3D ANALYZER v3.9.107 — KAYNAK: kullanicinin yeniden gonderdigi v3.9.99 ZIP.
+
+ERISIM:
+ANA MENÜ > AYARLAR > EN ÜSTTE YEŞİL + RENK OLUŞTUR · 10 NOKTA
+2D > üstte + 10 RENK OLUŞTUR / KAYDET
+3D/4D > üstte + 10 RENK OLUŞTUR / KAYDET
+
+- 10 ayri RGB renk duragi, palet ismi, kalici kaydet, en fazla 12 palet.
+- Kaydedilen paletler renk seritlerinde ve GMR renk secim listesinde gorunur.
+- Akilli renk hassasiyeti, kirmizi/mavi/mineral esikleri, sertlik kontrolleri.
+- Anomali renkleri yorum/gosterimdir; metal, bosluk, mineral teshisi degildir.
+- Onceki v3.9.99: 2D zoom/dondur, Bluetooth MAC gizleme korunur.
+- GMR canli gorsel pencere 72 yerine 144 sutun: ekranda ilerleme %50.
+- Aktivasyon formunda kaydirilabilir icerik ve altta sabit buton.
+- Ham olcum, derinlik ve GPR modullerine hedefli degisiklik yapilmadi.
+
+NOT: Android SDK ile APK derlemesi ve gercek cihaz testi bu ortamda yapilamadi.
+Yalnizca .zip yapisi ve kaynak metin kontrolleri yapildi.
+APK guncellemesinde verileri korumak icin mevcut uygulamayi once silmeyin.

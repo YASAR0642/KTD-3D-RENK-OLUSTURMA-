@@ -1,0 +1,14 @@
+KTD 3D ANALYZER v3.9.107 - GITHUB APK KAYNAK PAKETI
+
+Bu ZIP APK degil, GitHub deposunun KOKUNE yuklenecek tam Android kaynak kodudur.
+ZIP'IN KENDISINI GITHUB'A YUKLEMEYIN. ZIP'i acip tum dosyalari ve klasorleri secin.
+
+GitHub -> Actions -> KTD 3D ANALYZER v3.9.107 APK -> Run workflow
+Derleme tamamlandiginda Actions -> basarili run -> Artifacts -> KTD-3D-ANALYZER-v3.9.107-APK.
+
+Paket sadece 99 dosya icerir; 100 dosya sinirinin altindadir.
+Gradle Wrapper bulunmadigi icin workflow Gradle 8.9'u kendisi kurar.
+Java 17 / Android SDK 35 / Android Gradle Plugin 8.7.3.
+
+NOT: Burada Android SDK ile gercek APK derlemesi calistirilamadi.
+Daha sonraki bir kaynak kod hatasi varsa GitHub Actions kaydinda ortaya cikabilir.

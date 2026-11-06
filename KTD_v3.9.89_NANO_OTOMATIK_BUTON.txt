@@ -1,0 +1,12 @@
+KTD 3D ANALYZER v3.9.89 - NANO BUTON OTOMATIK
+
+Bu paket kullanicinin gonderdigi 3.9.84 Arduino Nano / HC-05 kaynak ZIP uzerine hazirlandi.
+OTOMATIK: ilk alinan yeni veri referans; sonrakiler fiziksel butondan tek
+seri olcum geldigi varsayimiyla sirayla gride islenir. Nano'nun tek paket
+/ basma gondermesi gerekir. Surekli veri gonderen Nano ile OTOMATIK
+modda grid kendi kendine dolabilir: bunun yerine SUREKLI VERI modunu
+secin, telefondaki ORNEK AL butonunu kullanin.
+
+ESP32 KOMUTLU yolunda koordinat esleme korunmustur.
+Nano A1/A2 verilerini nasil kodladigi Sens Pro firmware'ine baglidir.
+Burada Android APK derlemesi ve fiziksel cihaz testi yapilmadi.

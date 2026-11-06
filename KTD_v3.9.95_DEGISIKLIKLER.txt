@@ -1,0 +1,13 @@
+KTD 3D ANALYZER v3.9.95
+
+Ortak hesap: R = taramanin ortam referansi; Z = abs(olcum-R).
+Eger Z < 15: anomali yok, metre hesaplanmaz.
+Eger Z >= 15: proje metresi / gosterim koordinati = 800 / Z.
+
+2D, 3D, 4D, GMR ve analiz ayni hesap sinifini kullanir.
+3D/4D: C katmani % yerine derinlik metre etiketi, yarim metre adimlari.
+Analiz: Cekim alani, Bosluk Olasiligi, Bosluk Derinligi, Metal Olasiligi, Metal Derinligi.
+Eski kayitlarin ham Z ve C degerleri degistirilmez.
+
+Dikkat: Model sayisi kalibre edilmis fiziksel mesafe olcumu degildir.
+Voxler kendi basina derinlik hesaplamaz; ucuncu koordinati dosyadan alir.

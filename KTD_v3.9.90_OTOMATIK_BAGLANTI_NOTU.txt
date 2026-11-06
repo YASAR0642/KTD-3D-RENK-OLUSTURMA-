@@ -1,0 +1,5 @@
+KTD 3D ANALYZER v3.9.90
+- Bluetooth cihazini sectikten sonra Veri iletisim tipi secim penceresi acilmaz.
+- Her baglantida AUTO protokol kullanilir; onceki cihaz tercihi AUTO olarak guncellenir.
+- GMR, Nano fiziksel butonla hucre kaydi, ESP32 protokol algilama mevcut haliyle korunur.
+- APK derlemesi ve cihaz uzerinde saha testi yapilmadi.

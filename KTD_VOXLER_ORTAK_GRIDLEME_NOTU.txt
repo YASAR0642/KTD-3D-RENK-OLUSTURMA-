@@ -1,0 +1,12 @@
+KTD 3D ANALYZER v3.9.92 — VOXLER BENZERİ ORTAK GRIDLEME
+
+- 2D, 3D, 4D aynı DenseField IDW power=2 hesap yöntemini kullanır.
+- Ölçülmüş grid noktalarındaki değerler aynen korunur. Eksik kısmi alanın uzağı doldurulmaz.
+- C = 800/Z indeksi değişmedi. Ham X,Y,Z,C dosyası değiştirilmez.
+- Voxler Gridder gibi veri interpolasyonu yapılır, 4D isosurface gösterimi devam eder.
+- Voxler'in özel/kapalı kaynak algoritmasının birebir kopyası değildir.
+- Z sütunu ölçüm sinyalidir; gerçek derinlik değildir. C=800/Z de gerçek metre değildir.
+- Gerçek metre için ayrı kalibre edilmiş derinlik verisi gerekir. Uygulama sahte metre üretmez.
+- Nano fiziksel buton, otomatik bağlantı, GMR ve aktivasyon protokolü değiştirilmedi.
+
+TAM ANDROID SDK DERLEMESİ BU ORTAMDA YAPILMAMIŞTIR.
